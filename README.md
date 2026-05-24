@@ -103,7 +103,7 @@ No middleware. No Synapse. No Databricks. The Power Query pipeline reads CSVs di
 | 07 | [DAX measures reference](docs/07-dax-measures.md) | All 68 measures grouped by folder |
 | 08 | [Customization](docs/08-customization.md) | Parameterize, rebrand, add measures |
 | 09 | [Deployment](docs/09-deployment.md) | Publish to Service, schedule refresh, share |
-| 10 | [Troubleshooting](docs/10-troubleshooting.md) | Common errors & fixes |
+
 
 
 ---
