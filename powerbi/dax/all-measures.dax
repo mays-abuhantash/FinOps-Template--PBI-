@@ -1,0 +1,388 @@
+// ============================================================
+// Azure FinOps Cockpit — All DAX measures
+// 68 measures across 6 display folders
+// ============================================================
+
+
+// ============================================================
+// Display folder: 💰 Cost Totals
+// ============================================================
+
+// Cost eligible for Azure credits
+MEASURE _Measures[Credit Eligible Cost] =
+    CALCULATE([Total Cost USD], 'cost-analysis'[isAzureCreditEligible] = "True")
+
+// FOCUS: Cost eligible for Azure credits
+MEASURE _Measures[FOCUS Credit Eligible Cost] =
+    CALCULATE([FOCUS Total Billed Cost], 'cost-analysis-focus'[x_IsAzureCreditEligible] = "True")
+
+// FOCUS: Effective cost after discounts
+MEASURE _Measures[FOCUS Effective Cost] =
+    SUMX('cost-analysis-focus', 'cost-analysis-focus'[EffectiveCost])
+
+// FOCUS: Savings percentage vs list price
+MEASURE _Measures[FOCUS Savings %] =
+    DIVIDE([FOCUS Total Savings USD], SUMX('cost-analysis-focus', 'cost-analysis-focus'[x_PayGPrice]), 0)
+
+// FOCUS: Total billed cost
+MEASURE _Measures[FOCUS Total Billed Cost] =
+    SUMX('cost-analysis-focus', 'cost-analysis-focus'[BilledCost])
+
+// FOCUS: Savings vs Pay-as-you-Go list price
+MEASURE _Measures[FOCUS Total Savings USD] =
+    SUMX('cost-analysis-focus', 'cost-analysis-focus'[x_PayGPrice] - 'cost-analysis-focus'[BilledCost])
+
+// Savings percentage vs list price
+MEASURE _Measures[Savings %] =
+    DIVIDE([Total Savings USD], [Total PayG Cost], 0)
+
+// Total cost in billing currency
+MEASURE _Measures[Total Billed Cost] =
+    SUMX('cost-analysis', 'cost-analysis'[costInBillingCurrency])
+
+// Total actual cost in USD
+MEASURE _Measures[Total Cost USD] =
+    SUMX('cost-analysis', 'cost-analysis'[costInUsd])
+
+// Total Pay-as-you-Go list price cost
+MEASURE _Measures[Total PayG Cost] =
+    SUMX('cost-analysis', 'cost-analysis'[paygCostInUsd])
+
+// Savings vs Pay-as-you-Go price
+MEASURE _Measures[Total Savings USD] =
+    [Total PayG Cost] - [Total Cost USD]
+
+// ============================================================
+// Display folder: 📅 Time Intelligence
+// ============================================================
+
+// Average daily cost
+MEASURE _Measures[Daily Avg Cost] =
+    DIVIDE([Total Cost USD], DISTINCTCOUNT('Date'[Date]), 0)
+
+// FOCUS: Average daily cost
+MEASURE _Measures[FOCUS Daily Avg Cost] =
+    DIVIDE([FOCUS Total Billed Cost], DISTINCTCOUNT('Date'[Date]), 0)
+
+// FOCUS: Cost in the previous month
+MEASURE _Measures[FOCUS Last Month Cost] =
+    CALCULATE([FOCUS Total Billed Cost], DATEADD('Date'[Date], -1, MONTH))
+
+// FOCUS: Month-to-date billed cost
+MEASURE _Measures[FOCUS MTD Cost] =
+    CALCULATE(
+        [FOCUS Total Billed Cost],
+        DATESMTD(LASTDATE('cost-analysis-focus'[ChargePeriodStart_Date]))
+    )
+
+// FOCUS: Month-over-month cost change in USD
+MEASURE _Measures[FOCUS MoM Cost Change] =
+    [FOCUS Total Billed Cost] - [FOCUS Last Month Cost]
+
+// FOCUS: Month-over-month cost change percentage
+MEASURE _Measures[FOCUS MoM Cost Change %] =
+    DIVIDE([FOCUS MoM Cost Change], [FOCUS Last Month Cost], 0)
+
+// FOCUS: Projected full month cost
+MEASURE _Measures[FOCUS Projected Monthly Cost] =
+    VAR _DaysInMonth = DAY(EOMONTH(MAX('Date'[Date]), 0))
+    VAR _DaysElapsed = DAY(MAX('Date'[Date]))
+    RETURN DIVIDE([FOCUS Total Billed Cost], _DaysElapsed, 0) * _DaysInMonth
+
+// FOCUS: Current report month label
+MEASURE _Measures[FOCUS Report Month] =
+    FORMAT(LASTDATE('cost-analysis-focus'[ChargePeriodStart_Date]), "MMMM YYYY")
+
+// Cost in the previous month
+MEASURE _Measures[Last Month Cost] =
+    CALCULATE([Total Cost USD], DATEADD('Date'[Date], -1, MONTH))
+
+// Month-to-date cost
+MEASURE _Measures[MTD Cost] =
+    CALCULATE(
+        [Total Cost USD],
+        DATESMTD(LASTDATE('cost-analysis'[date]))
+    )
+
+// Month-over-month cost change in USD
+MEASURE _Measures[MoM Cost Change] =
+    [Total Cost USD] - [Last Month Cost]
+
+// Month-over-month cost change percentage
+MEASURE _Measures[MoM Cost Change %] =
+    DIVIDE([MoM Cost Change], [Last Month Cost], 0)
+
+// Projected full month cost based on daily average
+MEASURE _Measures[Projected Monthly Cost] =
+    VAR _DaysInMonth = DAY(EOMONTH(MAX('Date'[Date]), 0))
+    VAR _DaysElapsed = DAY(MAX('Date'[Date]))
+    RETURN DIVIDE([Total Cost USD], _DaysElapsed, 0) * _DaysInMonth
+
+// Current report month label for header
+MEASURE _Measures[Report Month] =
+    FORMAT(LASTDATE('cost-analysis'[date]), "MMMM YYYY")
+
+// ============================================================
+// Display folder: 📊 Counts
+// ============================================================
+
+// Billing account name for report header
+MEASURE _Measures[Billing Account] =
+    MAX('cost-analysis'[billingAccountName])
+
+// Number of distinct resource groups
+MEASURE _Measures[Distinct Resource Groups] =
+    DISTINCTCOUNT('cost-analysis'[resourceGroupName])
+
+// Number of distinct resources
+MEASURE _Measures[Distinct Resources] =
+    DISTINCTCOUNT('cost-analysis'[ResourceId])
+
+// Number of distinct Azure services
+MEASURE _Measures[Distinct Services] =
+    DISTINCTCOUNT('cost-analysis'[meterCategory])
+
+// Number of distinct subscriptions
+MEASURE _Measures[Distinct Subscriptions] =
+    DISTINCTCOUNT('cost-analysis'[subscriptionName])
+
+// FOCUS: Number of distinct resource groups
+MEASURE _Measures[FOCUS Distinct Resource Groups] =
+    DISTINCTCOUNT('cost-analysis-focus'[ResourceGroupName])
+
+// FOCUS: Distinct resource IDs
+MEASURE _Measures[FOCUS Distinct Resources] =
+    DISTINCTCOUNT('cost-analysis-focus'[ResourceId])
+
+// FOCUS: Distinct service names
+MEASURE _Measures[FOCUS Distinct Services] =
+    DISTINCTCOUNT('cost-analysis-focus'[ServiceName])
+
+// FOCUS: Distinct subscriptions
+MEASURE _Measures[FOCUS Distinct Subscriptions] =
+    DISTINCTCOUNT('cost-analysis-focus'[SubAccountName])
+
+// Invoice section for report header
+MEASURE _Measures[Invoice Section] =
+    MAX('cost-analysis'[invoiceSectionName])
+
+// ============================================================
+// Display folder: 🔍 Breakdowns
+// ============================================================
+
+// Share of total cost in current filter context
+MEASURE _Measures[% of Total Cost] =
+    DIVIDE([Total Cost USD], CALCULATE([Total Cost USD], ALL('cost-analysis')), 0)
+
+// Cost grouped by Azure region
+MEASURE _Measures[Cost by Location] =
+    CALCULATE([Total Cost USD], ALLEXCEPT('cost-analysis', 'cost-analysis'[location]))
+
+// Cost grouped by resource group
+MEASURE _Measures[Cost by Resource Group] =
+    CALCULATE([Total Cost USD], ALLEXCEPT('cost-analysis', 'cost-analysis'[resourceGroupName]))
+
+// Cost grouped by service family
+MEASURE _Measures[Cost by Service Family] =
+    CALCULATE([Total Cost USD], ALLEXCEPT('cost-analysis', 'cost-analysis'[serviceFamily]))
+
+// Cost grouped by subscription
+MEASURE _Measures[Cost by Subscription] =
+    CALCULATE([Total Cost USD], ALLEXCEPT('cost-analysis', 'cost-analysis'[subscriptionName]))
+
+// FOCUS: Share of total cost
+MEASURE _Measures[FOCUS % of Total] =
+    DIVIDE([FOCUS Total Billed Cost], CALCULATE([FOCUS Total Billed Cost], ALL('cost-analysis-focus')), 0)
+
+// FOCUS: Cost grouped by region
+MEASURE _Measures[FOCUS Cost by Region] =
+    CALCULATE([FOCUS Total Billed Cost], ALLEXCEPT('cost-analysis-focus', 'cost-analysis-focus'[RegionName]))
+
+// FOCUS: Cost grouped by resource group
+MEASURE _Measures[FOCUS Cost by Resource Group] =
+    CALCULATE([FOCUS Total Billed Cost], ALLEXCEPT('cost-analysis-focus', 'cost-analysis-focus'[ResourceGroupName]))
+
+// FOCUS: Cost grouped by service name
+MEASURE _Measures[FOCUS Cost by Service] =
+    CALCULATE([FOCUS Total Billed Cost], ALLEXCEPT('cost-analysis-focus', 'cost-analysis-focus'[ServiceName]))
+
+// FOCUS: Cost grouped by subscription
+MEASURE _Measures[FOCUS Cost by Subscription] =
+    CALCULATE([FOCUS Total Billed Cost], ALLEXCEPT('cost-analysis-focus', 'cost-analysis-focus'[SubAccountName]))
+
+// FOCUS: Highest cost single service
+MEASURE _Measures[FOCUS Top Service Cost] =
+    MAXX(VALUES('cost-analysis-focus'[ServiceName]), [FOCUS Total Billed Cost])
+
+// Highest cost single service
+MEASURE _Measures[Top Service Cost] =
+    MAXX(VALUES('cost-analysis'[meterCategory]), [Total Cost USD])
+
+// ============================================================
+// Display folder: 🏷️ Tags
+// ============================================================
+
+// FOCUS: Cost of resources that have at least one business tag
+MEASURE _Measures[FOCUS Tagged Cost] =
+    CALCULATE([FOCUS Total Billed Cost],
+        'cost-analysis-focus'[Tag_Environment]      <> "" ||
+        'cost-analysis-focus'[Tag_Project]           <> "" ||
+        'cost-analysis-focus'[Tag_Version]           <> "" ||
+        'cost-analysis-focus'[Tag__deployed_by_amba] <> "" ||
+        'cost-analysis-focus'[Tag_business owner]    <> "" ||
+        'cost-analysis-focus'[Tag_IT owner]          <> "" ||
+        'cost-analysis-focus'[Tag_department]        <> "" ||
+        'cost-analysis-focus'[Tag_application ]      <> ""
+    )
+
+// FOCUS: Count of resources that have at least one business tag
+MEASURE _Measures[FOCUS Tagged Resources Count] =
+    CALCULATE([FOCUS Distinct Resources],
+        'cost-analysis-focus'[Tag_Environment]      <> "" ||
+        'cost-analysis-focus'[Tag_Project]           <> "" ||
+        'cost-analysis-focus'[Tag_Version]           <> "" ||
+        'cost-analysis-focus'[Tag__deployed_by_amba] <> "" ||
+        'cost-analysis-focus'[Tag_business owner]    <> "" ||
+        'cost-analysis-focus'[Tag_IT owner]          <> "" ||
+        'cost-analysis-focus'[Tag_department]        <> "" ||
+        'cost-analysis-focus'[Tag_application ]      <> ""
+    )
+
+// FOCUS: Tagging coverage percentage
+MEASURE _Measures[FOCUS Tagging Coverage %] =
+    DIVIDE([FOCUS Tagged Cost], [FOCUS Total Billed Cost], 0)
+
+// FOCUS: Cost of resources with no business tags at all
+MEASURE _Measures[FOCUS Untagged Cost] =
+    CALCULATE([FOCUS Total Billed Cost],
+        'cost-analysis-focus'[Tag_Environment]      = "" &&
+        'cost-analysis-focus'[Tag_Project]           = "" &&
+        'cost-analysis-focus'[Tag_Version]           = "" &&
+        'cost-analysis-focus'[Tag__deployed_by_amba] = "" &&
+        'cost-analysis-focus'[Tag_business owner]    = "" &&
+        'cost-analysis-focus'[Tag_IT owner]          = "" &&
+        'cost-analysis-focus'[Tag_department]        = "" &&
+        'cost-analysis-focus'[Tag_application ]      = ""
+    )
+
+// FOCUS: Count of resources with no business tags at all
+MEASURE _Measures[FOCUS Untagged Resources Count] =
+    CALCULATE([FOCUS Distinct Resources],
+        'cost-analysis-focus'[Tag_Environment]      = "" &&
+        'cost-analysis-focus'[Tag_Project]           = "" &&
+        'cost-analysis-focus'[Tag_Version]           = "" &&
+        'cost-analysis-focus'[Tag__deployed_by_amba] = "" &&
+        'cost-analysis-focus'[Tag_business owner]    = "" &&
+        'cost-analysis-focus'[Tag_IT owner]          = "" &&
+        'cost-analysis-focus'[Tag_department]        = "" &&
+        'cost-analysis-focus'[Tag_application ]      = ""
+    )
+
+// Cost of resources that have tags
+MEASURE _Measures[Tagged Resources Cost] =
+    CALCULATE([Total Cost USD], 'cost-analysis'[tags] <> "")
+
+// Percentage of cost covered by tagged resources
+MEASURE _Measures[Tagging Coverage %] =
+    DIVIDE([Tagged Resources Cost], [Total Cost USD], 0)
+
+// Target for tagging coverage — 100%
+MEASURE _Measures[Tagging Target] =
+    1
+
+// Cost of resources with no tags
+MEASURE _Measures[Untagged Resources Cost] =
+    CALCULATE([Total Cost USD], 'cost-analysis'[tags] = "")
+
+// ============================================================
+// Display folder: 💰 FinOps Optimization
+// ============================================================
+
+// FOCUS: % of spend covered by any commitment (RI + Savings Plan)
+MEASURE _Measures[FOCUS Commitment Coverage %] =
+    DIVIDE([FOCUS Reservation Cost] + [FOCUS Savings Plan Cost], [FOCUS Total Billed Cost], 0)
+
+// FOCUS: Difference between Effective and Billed cost — shows reservation amortization impact
+MEASURE _Measures[FOCUS Effective vs Billed Gap] =
+    [FOCUS Effective Cost] - [FOCUS Total Billed Cost]
+
+// FOCUS: % of total cost at OnDemand rates — optimization opportunity
+MEASURE _Measures[FOCUS OnDemand %] =
+    DIVIDE([FOCUS OnDemand Cost], [FOCUS Total Billed Cost], 0)
+
+// FOCUS: Cost billed at OnDemand rates (no commitment discount)
+MEASURE _Measures[FOCUS OnDemand Cost] =
+    CALCULATE([FOCUS Total Billed Cost], 'cost-analysis-focus'[x_PricingModel] = "OnDemand")
+
+// FOCUS: Count of resources paying full OnDemand price
+MEASURE _Measures[FOCUS OnDemand Resources] =
+    CALCULATE([FOCUS Distinct Resources], 'cost-analysis-focus'[x_PricingModel] = "OnDemand")
+
+// FOCUS: Estimated savings if 35% of OnDemand spend moved to Reserved Instances
+MEASURE _Measures[FOCUS Potential Savings USD] =
+    CALCULATE([FOCUS OnDemand Cost], 'cost-analysis-focus'[x_PricingModel] = "OnDemand") * 0.35
+
+// FOCUS: % of resources covered by Reserved Instances vs total
+MEASURE _Measures[FOCUS RI Coverage %] =
+    DIVIDE([FOCUS Reserved Resources], [FOCUS Distinct Resources], 0)
+
+// FOCUS: Cost covered by Reserved Instances
+MEASURE _Measures[FOCUS Reservation Cost] =
+    IF(ISBLANK(CALCULATE([FOCUS Total Billed Cost], 'cost-analysis-focus'[x_PricingModel] = "Reservation")), 0, CALCULATE([FOCUS Total Billed Cost], 'cost-analysis-focus'[x_PricingModel] = "Reservation"))
+
+// FOCUS: Count of resources covered by Reserved Instances
+MEASURE _Measures[FOCUS Reserved Resources] =
+    IF(ISBLANK(CALCULATE([FOCUS Distinct Resources], 'cost-analysis-focus'[x_PricingModel] = "Reservation")), 0, CALCULATE([FOCUS Distinct Resources], 'cost-analysis-focus'[x_PricingModel] = "Reservation"))
+
+// FOCUS: Cost covered by Savings Plans
+MEASURE _Measures[FOCUS Savings Plan Cost] =
+    IF(ISBLANK(CALCULATE([FOCUS Total Billed Cost], 'cost-analysis-focus'[x_PricingModel] = "SavingsPlan")), 0, CALCULATE([FOCUS Total Billed Cost], 'cost-analysis-focus'[x_PricingModel] = "SavingsPlan"))
+
+// Dynamic FinOps recommendations text that updates automatically based on actual data values
+MEASURE _Measures[FinOps Recommendations] =
+    
+    VAR _RICoverage      = [FOCUS RI Coverage %]
+    VAR _OnDemandPct     = [FOCUS OnDemand %]
+    VAR _OnDemandCost    = [FOCUS OnDemand Cost]
+    VAR _PotentialSaving = [FOCUS Potential Savings USD]
+    VAR _EffBilledGap    = [FOCUS Effective vs Billed Gap]
+    VAR _TotalRes        = [FOCUS Distinct Resources]
+    VAR _CommitCoverage  = [FOCUS Commitment Coverage %]
+    
+    VAR _Rec1 =
+        IF(_RICoverage = 0,
+            "🔴 RI COVERAGE — CRITICAL" & UNICHAR(10) &
+            "0% of " & FORMAT(_TotalRes,"#,##0") & " resources use RIs. " &
+            "Buy 1-yr RIs to save " & FORMAT(_PotentialSaving,"$#,##0") & "/mo.",
+            "🟢 RI COVERAGE — " & FORMAT(_RICoverage,"0%") & " covered.")
+    
+    VAR _Rec2 =
+        IF(_OnDemandPct >= 0.9,
+            UNICHAR(10) & UNICHAR(10) &
+            "🔴 ONDEMAND — CRITICAL" & UNICHAR(10) &
+            FORMAT(_OnDemandPct,"0%") & " of spend (" & FORMAT(_OnDemandCost,"$#,##0") & ") at full price. " &
+            "Consider Savings Plans (20-40% off).",
+            UNICHAR(10) & UNICHAR(10) &
+            "🟢 ONDEMAND — " & FORMAT(_OnDemandPct,"0%") & " OnDemand.")
+    
+    VAR _Rec3 =
+        IF(_EffBilledGap > 0,
+            UNICHAR(10) & UNICHAR(10) &
+            "🟡 BILLED GAP — " & FORMAT(_EffBilledGap,"$#,##0.00") & UNICHAR(10) &
+            "Effective vs Billed gap detected. Review reservation amortization.",
+            "")
+    
+    VAR _Rec4 =
+        IF(_CommitCoverage = 0,
+            UNICHAR(10) & UNICHAR(10) &
+            "🔴 SAVINGS PLANS — NOT IN USE" & UNICHAR(10) &
+            "No Savings Plans active. Purchase Compute Savings Plans for 20-40% discount.",
+            UNICHAR(10) & UNICHAR(10) &
+            "🟢 SAVINGS PLANS — " & FORMAT(_CommitCoverage,"0%") & " covered.")
+    
+    RETURN _Rec1 & _Rec2 & _Rec3 & _Rec4
+    
+
+// Target for OnDemand % gauge — goal is 0% OnDemand (fully committed)
+MEASURE _Measures[OnDemand Target] =
+    0
