@@ -35,10 +35,10 @@ Microsoft's native Cost Management views answer #1, partially answer #3, and bar
 
 A three-page Power BI report with **68 pre-built FinOps measures**, dual data-model support (classic MCA exports **+** the open [FOCUS 1.0 specification](https://focus.finops.org)), and a robust Power Query pipeline that handles `.csv`, `.csv.gz`, schema drift, and dynamic resource tags.
 
-| Page | Audience | Key questions answered |
-|------|----------|------------------------|
-| 🏛️ **Executive Summary** | CFO, CIO, FinOps lead | What did we spend? How does it compare to last month? What's the run-rate? |
-| 🏷️ **Tags & Governance** | Platform team, cost-center owners | What % of spend is properly tagged? Which resources are leaking cost-center attribution? |
+| Page                      | Audience                              | Key questions answered                                                                       |
+| ------------------------- | ------------------------------------- | -------------------------------------------------------------------------------------------- |
+| 🏛️ **Executive Summary**   | CFO, CIO, FinOps lead                 | What did we spend? How does it compare to last month? What's the run-rate?                   |
+| 🏷️ **Tags & Governance**   | Platform team, cost-center owners     | What % of spend is properly tagged? Which resources are leaking cost-center attribution?     |
 | 💡 **FinOps Optimization** | FinOps practitioner, cloud architects | How much are we paying at on-demand rates? What's the reservation/savings-plan coverage gap? |
 
 📦 **Bundled artifacts**
@@ -88,21 +88,37 @@ No middleware. No Synapse. No Databricks. The Power Query pipeline reads CSVs di
 
 📖 **Full step-by-step →** [`docs/03-quickstart.md`](docs/03-quickstart.md)
 
+### 📊 Example Dashboards
+
+Here's a preview of what you'll get out of the box once your export is connected and the model refreshes. Each page targets a different audience — executives, governance owners, and FinOps practitioners — and is fully customizable to your brand and KPIs.
+
+**Executive Summary**
+
+![Executive Summary](assets/images/01-executive-summary.png)
+
+**Tags & Governance**
+
+![Tags & Governance](assets/images/02-tags-governance.png)
+
+**FinOps Optimization**
+
+![FinOps Optimization](assets/images/03-finops-optimization.png)
+
 ---
 
 ## 🧭 Documentation
 
-| # | Doc | Purpose |
-|---|-----|---------|
-| 01 | [Overview](docs/01-overview.md) | The "why" and the FinOps framing |
-| 02 | [Prerequisites](docs/02-prerequisites.md) | Licensing, permissions, export config |
-| 03 | [Quickstart](docs/03-quickstart.md) | 5-minute deploy |
-| 04 | [Architecture](docs/04-architecture.md) | Data flow + ERD |
-| 05 | [Data model](docs/05-data-model.md) | Tables, columns, relationships |
-| 06 | [Power Query, explained](docs/06-power-query-explained.md) | Line-by-line walkthrough of all 3 M queries |
-| 07 | [DAX measures reference](docs/07-dax-measures.md) | All 68 measures grouped by folder |
-| 08 | [Customization](docs/08-customization.md) | Parameterize, rebrand, add measures |
-| 09 | [Deployment](docs/09-deployment.md) | Publish to Service, schedule refresh, share |
+| #   | Doc                                                        | Purpose                                     |
+| --- | ---------------------------------------------------------- | ------------------------------------------- |
+| 01  | [Overview](docs/01-overview.md)                            | The "why" and the FinOps framing            |
+| 02  | [Prerequisites](docs/02-prerequisites.md)                  | Licensing, permissions, export config       |
+| 03  | [Quickstart](docs/03-quickstart.md)                        | 5-minute deploy                             |
+| 04  | [Architecture](docs/04-architecture.md)                    | Data flow + ERD                             |
+| 05  | [Data model](docs/05-data-model.md)                        | Tables, columns, relationships              |
+| 06  | [Power Query, explained](docs/06-power-query-explained.md) | Line-by-line walkthrough of all 3 M queries |
+| 07  | [DAX measures reference](docs/07-dax-measures.md)          | All 68 measures grouped by folder           |
+| 08  | [Customization](docs/08-customization.md)                  | Parameterize, rebrand, add measures         |
+| 09  | [Deployment](docs/09-deployment.md)                        | Publish to Service, schedule refresh, share |
 
 
 
@@ -135,12 +151,12 @@ azure-finops-cockpit/
 
 ## 👥 Who is this for?
 
-| Role | What you get |
-|------|--------------|
-| **FinOps practitioner** | A working baseline you can fork, extend, and rebrand per customer in hours, not weeks. |
-| **Cloud architect / Platform lead** | A single source of truth for cloud spend with tag-governance visibility. |
-| **CFO / Finance partner** | An executive-ready dashboard without a SaaS subscription or BI consultant. |
-| **Consulting partner** | A presales asset + delivery accelerator you can ship as IP under your own brand. |
+| Role                                | What you get                                                                           |
+| ----------------------------------- | -------------------------------------------------------------------------------------- |
+| **FinOps practitioner**             | A working baseline you can fork, extend, and rebrand per customer in hours, not weeks. |
+| **Cloud architect / Platform lead** | A single source of truth for cloud spend with tag-governance visibility.               |
+| **CFO / Finance partner**           | An executive-ready dashboard without a SaaS subscription or BI consultant.             |
+| **Consulting partner**              | A presales asset + delivery accelerator you can ship as IP under your own brand.       |
 
 ---
 
