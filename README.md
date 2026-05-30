@@ -88,6 +88,14 @@ No middleware. No Synapse. No Databricks. The Power Query pipeline reads CSVs di
 
 📖 **Full step-by-step →** [`docs/03-quickstart.md`](docs/03-quickstart.md)
 
+### 📊 Example Dashboards
+
+Here's a preview of what you'll get out of the box once your export is connected and the model refreshes. Each page targets a different audience — executives, governance owners, and FinOps practitioners — and is fully customizable to your brand and KPIs.
+
+| Executive Summary | Tags & Governance | FinOps Optimization |
+|:---:|:---:|:---:|
+| ![Executive Summary](assets/images/01-executive-summary.png) | ![Tags & Governance](assets/images/02-tags-governance.png) | ![FinOps Optimization](assets/images/03-finops-optimization.png) |
+
 ---
 
 ## 🧭 Documentation
